@@ -1,3 +1,14 @@
+# About
+
+packages used-
+>npm i xlsx
+>npm install file-saver
+
+Xlsx-style  
+>npm i exceljs 
+
+for reference check-
+http://sheetjs.com
 # ExportExcel
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.3.

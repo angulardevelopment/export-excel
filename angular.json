@@ -127,5 +127,8 @@
       }
     }
   },
-  "defaultProject": "export-excel"
+  "defaultProject": "export-excel",
+  "cli": {
+    "analytics": false
+  }
 }
