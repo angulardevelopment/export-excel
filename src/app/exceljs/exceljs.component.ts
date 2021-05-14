@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import * as Excel from "exceljs/dist/exceljs.min.js";
+// import * as Excel from "exceljs/dist/exceljs.min.js";
 import * as ExcelProper from "exceljs";
 import * as FileSaver from 'file-saver';
+import * as Excel from "exceljs";
 
 @Component({
   selector: 'app-exceljs',
@@ -87,7 +88,7 @@ export class ExceljsComponent implements OnInit {
     worksheet.mergeCells(`A${footerRow.number}:F${footerRow.number}`);
     // //Generate Excel File with given name
     workbook.xlsx.writeBuffer().then((data) => {
-      let blob = new Blob([data as Blob], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      let blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       FileSaver.saveAs(blob, 'CarData.xlsx');
     })
   }

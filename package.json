@@ -21,6 +21,7 @@
     "@angular/router": "~11.0.3",
     "exceljs": "^4.2.1",
     "file-saver": "^2.0.5",
+    "ng-google-sheets-db": "^1.1.0",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "xlsx": "^0.16.9",

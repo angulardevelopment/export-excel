@@ -9,6 +9,15 @@ Xlsx-style
 
 for reference check-
 http://sheetjs.com
+
+
+npm install ng-google-sheets-db
+
+to use this in project you have to do mapping-
+support your excel column name is data-
+then create new key-value pair with keyname: excel column name
+
+characterAttributesMapping
 # ExportExcel
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.3.

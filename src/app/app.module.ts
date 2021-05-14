@@ -5,6 +5,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BasicComponent } from './basic/basic.component';
 import { ExceljsComponent } from './exceljs/exceljs.component';
+import { GoogleSheetsDbService } from 'ng-google-sheets-db';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -14,9 +16,10 @@ import { ExceljsComponent } from './exceljs/exceljs.component';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [GoogleSheetsDbService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

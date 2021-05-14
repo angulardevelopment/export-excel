@@ -3,6 +3,9 @@ import { saveAs } from "file-saver";
 import { utils, write, WorkBook } from "xlsx";
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import { GoogleSheetsDbService } from 'ng-google-sheets-db';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 type AOA = Array<Array<any>>; // type AOA = any[][];
 @Component({
   selector: 'app-basic',
@@ -31,9 +34,70 @@ export class BasicComponent implements OnInit {
   }];
   data: AOA = [[1, 2], [3, 4]];
 
-  constructor() { }
+  characters$: Observable<any[]>;
+
+  constructor(private googleSheetsDbService: GoogleSheetsDbService, public http: HttpClient) { }
+
   ngOnInit(): void {
-  }
+    const characterAttributesMapping = {
+      id: 'ID',
+      name: 'Name',
+      name2: 'data',
+
+      email: 'Email Address',
+      contact: {
+        _prefix: 'Contact',
+        street: 'Street',
+        streetNumber: 'Street Number',
+        zip: 'ZIP',
+        city: 'City'
+      },
+      skills: {
+        _prefix: 'Skill',
+        _listField: true
+      }
+    };
+
+    // not use this publish url
+    // https://docs.google.com/spreadsheets/d/e/2PACX-1vTVJ2OLVjj_3O31RZaTg4nFcBMBqBUEWXGBo81uJ7IdcmKIo3PGIPNB9-yWzGnaQjr0nkN6FXLo_b1q/pubhtml
+
+   // use th edit URL
+    // https://docs.google.com/spreadsheets/d/16j0t7K1EwBRTHERly4Ggp-ZVAgwlXYCnJDAYFGJ1vHk/edit
+    this.characters$ = this.googleSheetsDbService.get('16j0t7K1EwBRTHERly4Ggp-ZVAgwlXYCnJDAYFGJ1vHk', 1, characterAttributesMapping);
+
+// this.characters$ = this.googleSheetsDbService.getActive(
+//   '1gSc_7WCmt-HuSLX01-Ev58VsiFuhbpYVo8krbPCvvqA', 1, characterAttributesMapping, 'Active');
+
+this.characters$.subscribe((res)=>{
+  console.log(res, 'data');
+
+})
+}
+
+// public getSheetData(): Observable<any> {
+//   const sheetId = '15Kndr-OcyCUAkBUcq6X3BMqKa_y2fMAXfPFLiSACiys';
+//   const url = `https://spreadsheets.google.com/feeds/list/${sheetId}/od6/public/values?alt=json`;
+
+//   return this.http.get(url)
+//     .pipe(map((res: any) => {
+//         const data = res.feed.entry;
+
+//         const returnArray: Array<any> = [];
+//         if (data && data.length > 0) {
+//           data.forEach(entry => {
+//             const obj = {};
+//             for (const x in entry) {
+//               if (x.includes('gsx$') && entry[x].$t) {
+//                 obj[x.split('$')[1]] = entry[x]['$t'];
+//               }
+//             }
+//             returnArray.push(obj);
+//           });
+//         }
+//         return returnArray;
+//       })
+//     );
+// }
   // generate workbook and add the worksheet
   exportSheet() {
     /* generate worksheet */
