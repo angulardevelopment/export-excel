@@ -1,10 +1,14 @@
+To use exceljs do this 
+Add this to tsconfig.app.json file.
+"types": ["node"]. 
+
 # About
 
 packages used-
 >npm i xlsx
 >npm install file-saver
 
-Xlsx-style  
+>xlsx-style  
 >npm i exceljs 
 
 for reference check-

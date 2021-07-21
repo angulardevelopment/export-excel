@@ -35,41 +35,46 @@ export class BasicComponent implements OnInit {
   data: AOA = [[1, 2], [3, 4]];
 
   characters$: Observable<any[]>;
+  willDownload = false;
 
   constructor(private googleSheetsDbService: GoogleSheetsDbService, public http: HttpClient) { }
 
   ngOnInit(): void {
-    const characterAttributesMapping = {
-      id: 'ID',
-      name: 'Name',
-      name2: 'data',
 
-      email: 'Email Address',
-      contact: {
-        _prefix: 'Contact',
-        street: 'Street',
-        streetNumber: 'Street Number',
-        zip: 'ZIP',
-        city: 'City'
-      },
-      skills: {
-        _prefix: 'Skill',
-        _listField: true
-      }
-    };
+}
 
-    // not use this publish url
-    // https://docs.google.com/spreadsheets/d/e/2PACX-1vTVJ2OLVjj_3O31RZaTg4nFcBMBqBUEWXGBo81uJ7IdcmKIo3PGIPNB9-yWzGnaQjr0nkN6FXLo_b1q/pubhtml
+googleSheetUsage(){
+  const characterAttributesMapping = {
+    id: 'ID',
+    name: 'Name',
+    name2: 'data',
 
-   // use th edit URL
-    // https://docs.google.com/spreadsheets/d/16j0t7K1EwBRTHERly4Ggp-ZVAgwlXYCnJDAYFGJ1vHk/edit
-    this.characters$ = this.googleSheetsDbService.get('16j0t7K1EwBRTHERly4Ggp-ZVAgwlXYCnJDAYFGJ1vHk', 1, characterAttributesMapping);
+    email: 'Email Address',
+    contact: {
+      _prefix: 'Contact',
+      street: 'Street',
+      streetNumber: 'Street Number',
+      zip: 'ZIP',
+      city: 'City'
+    },
+    skills: {
+      _prefix: 'Skill',
+      _listField: true
+    }
+  };
+
+  // not use this publish url
+  // https://docs.google.com/spreadsheets/d/e/2PACX-1vTVJ2OLVjj_3O31RZaTg4nFcBMBqBUEWXGBo81uJ7IdcmKIo3PGIPNB9-yWzGnaQjr0nkN6FXLo_b1q/pubhtml
+
+ // use th edit URL
+  // https://docs.google.com/spreadsheets/d/16j0t7K1EwBRTHERly4Ggp-ZVAgwlXYCnJDAYFGJ1vHk/edit
+  this.characters$ = this.googleSheetsDbService.get('16j0t7K1EwBRTHERly4Ggp-ZVAgwlXYCnJDAYFGJ1vHk', 1, characterAttributesMapping);
 
 // this.characters$ = this.googleSheetsDbService.getActive(
 //   '1gSc_7WCmt-HuSLX01-Ev58VsiFuhbpYVo8krbPCvvqA', 1, characterAttributesMapping, 'Active');
 
 this.characters$.subscribe((res)=>{
-  console.log(res, 'data');
+console.log(res, 'data');
 
 })
 }
@@ -161,6 +166,37 @@ this.characters$.subscribe((res)=>{
     reader.readAsBinaryString(target.files[0]);
   }
 
+  onFileChange2(ev) {
+    let workBook = null;
+    let jsonData = null;
+    const reader = new FileReader();
+    const file = ev.target.files[0];
+    reader.onload = (event) => {
+      const data = reader.result;
+      workBook = XLSX.read(data, { type: 'binary' });
+      jsonData = workBook.SheetNames.reduce((initial, name) => {
+        const sheet = workBook.Sheets[name];
+        initial[name] = XLSX.utils.sheet_to_json(sheet);
+        return initial;
+      }, {});
+      const dataString = JSON.stringify(jsonData);
+      console.log(dataString, jsonData,jsonData.Sheet1, 'jsonData');
+
+      document.getElementById('output').innerHTML = dataString.slice(0, 300).concat("...");
+      this.setDownload(dataString);
+    }
+    reader.readAsBinaryString(file);
+  }
+
+
+  setDownload(data) {
+    this.willDownload = true;
+    setTimeout(() => {
+      const el = document.querySelector("#download");
+      el.setAttribute("href", `data:text/json;charset=utf-8,${encodeURIComponent(data)}`);
+      el.setAttribute("download", 'xlsxtojson.json');
+    }, 1000)
+  }
 
 
   public exportAsExcelFile(): void {
@@ -203,7 +239,9 @@ this.characters$.subscribe((res)=>{
 
   // To get excel data from assets you can use below approach-
   fetchDataFromAssets() {
-    var testUrl = "../assets/demo.xlsx";
+    const testUrl = "../assets/demo.xlsx";
+
+
     var oReq = new XMLHttpRequest();
     oReq.open("GET", testUrl, true);
     oReq.responseType = "arraybuffer";
@@ -227,7 +265,38 @@ this.characters$.subscribe((res)=>{
         { header: 1, raw: true }
       );
       var jsonOut = JSON.stringify(json);
-      console.log("test" + jsonOut);
+      console.log("test", json);
+    };
+    oReq.send();
+  }
+
+  fetchCSVData() {
+    const testUrl = "/assets/cm01JUL2021bhav.csv";
+
+    var oReq = new XMLHttpRequest();
+    oReq.open("GET", testUrl, true);
+    oReq.responseType = "arraybuffer";
+    oReq.onload = function (e) {
+      var arraybuffer = oReq.response;
+      /* convert data to binary string */
+      var data = new Uint8Array(arraybuffer);
+      var arr = new Array();
+      for (var i = 0; i != data.length; ++i) {
+        arr[i] = String.fromCharCode(data[i]);
+      }
+      var bstr = arr.join("");
+      //        Call XLSX
+      var workbook = XLSX.read(bstr, { type: "binary" });
+      //  DO SOMETHING WITH workbook HERE
+      var first_sheet_name = workbook.SheetNames[0];
+      /* Get worksheet */
+      var worksheet = workbook.Sheets[first_sheet_name];
+      var json = XLSX.utils.sheet_to_json(
+        workbook.Sheets[workbook.SheetNames[0]],
+        { header: 1, raw: true }
+      );
+      var jsonOut = JSON.stringify(json);
+      console.log("test", json, jsonOut);
     };
     oReq.send();
   }
