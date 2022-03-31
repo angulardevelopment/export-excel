@@ -1,50 +1,75 @@
-<!-- <div>
-  <p>You can upload csv, xlsx, xlsx file</p>
-<input type="file" (change)="onFileChange($event)" multiple="false" />
-<table class="sjs-table">
- <tbody>
- <tr *ngFor="let row of data">
-  <td *ngFor="let val of row">
-   {{val}}
-  </td>
- </tr>
-   </tbody>
-</table>
-</div>
-
-
 <div>
-<table id="tbl">
-<tr>
-  <td>Eid</td>
-  <td>Ename</td>
-  <td>Esal</td>
-</tr>
-<tr *ngFor="let item of data2">
-  <td>{{item.eid}}</td>
-  <td>{{item.ename}}</td>
-  <td>{{item.esal}}</td>
-</tr>
-</table>
+  <p>You can upload csv, xlsx, xlsx file</p>
+  <input type="file" (change)="onFileUpload($event)" multiple="false" />
+  <table class="sjs-table">
+    <tbody>
+      <tr *ngFor="let row of data">
+        <td *ngFor="let val of row">
+          {{ val }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
+<hr>
+<div>
+  <table id="tbl">
+    <tr>
+      <td>Eid</td>
+      <td>Ename</td>
+      <td>Esal</td>
+    </tr>
+    <tr *ngFor="let item of data2">
+      <td>{{ item.eid }}</td>
+      <td>{{ item.ename }}</td>
+      <td>{{ item.esal }}</td>
+    </tr>
+  </table>
+</div>
+
+<hr>
 <button (click)="exportSheet()">export Sheet</button>
-<button (click)="exportAsExcelFile()"> json Export!</button>
-<button (click)="generateExcelsheet()"> Excelsheet with formatting!</button>
-
-
-
-
-
+<hr>
+<button (click)="exportAsExcelFile()">json Export!</button>
+<hr>
+<button (click)="generateExcelsheet()">Excelsheet with formatting!</button>
+<hr>
 <div id="output"></div>
-<br>
+<br />
 <div *ngIf="willDownload">
-	<a id="download"> Download JSON File </a>
+  <a id="download"> Download JSON File </a>
 </div>
+<hr>
+<p>You can upload csv, xlsx, xlsx file</p>
+<input type="file" (change)="onFileChange($event)" />
+<hr>
+<button (click)="fetchDataFromAssets('assets/voltality/CMVOLT_09092021.CSV')">fetchDataFromAssets!</button>
+<hr>
+<div class="col-md-8 form-group">        
+  <input type="file" class="form-control" (change)="addfile($event)" placeholder="Upload file" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">        
+</div> 
+<hr>
+
+<form [formGroup]="form" (ngSubmit)="submit(form.value)">
+  
+  <div>
+    <label>numVal1</label>
+    <input type="number" formControlName="numVal1" placeholder="numVal1">
+  </div>
+
+  <div>
+    <label>numVal2</label>
+    <input type="number" formControlName="numVal2" placeholder="numVal2">
+  </div>
 
 
 
 
- -->
 
- <input type="file" (change)="onFileChange2($event)" />
+
+
+  <button type="submit">submit</button>
+</form>
+
+

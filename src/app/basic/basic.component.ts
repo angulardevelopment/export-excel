@@ -7,43 +7,58 @@ import { GoogleSheetsDbService } from 'ng-google-sheets-db';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 type AOA = Array<Array<any>>; // type AOA = any[][];
 @Component({
   selector: 'app-basic',
   templateUrl: './basic.component.html',
-  styleUrls: ['./basic.component.scss']
+  styleUrls: ['./basic.component.scss'],
 })
 export class BasicComponent implements OnInit {
+  file;
+  arrayBuffer;
   ws_data = [
     ['S', 'h', 'e', 'e', 't', 'J', 'S'],
-    [1, 2, 3, 4, 5]
+    [1, 2, 3, 4, 5],
   ];
-  data2 = [{
-    eid: 'e101',
-    ename: 'ravi',
-    esal: 1000
-  },
-  {
-    eid: 'e102',
-    ename: 'ram',
-    esal: 2000
-  },
-  {
-    eid: 'e103',
-    ename: 'rajesh',
-    esal: 3000
-  }];
-  data: AOA = [[1, 2], [3, 4]];
+  data2 = [
+    {
+      eid: 'e101',
+      ename: 'ravi',
+      esal: 1000,
+    },
+    {
+      eid: 'e102',
+      ename: 'ram',
+      esal: 2000,
+    },
+    {
+      eid: 'e103',
+      ename: 'rajesh',
+      esal: 3000,
+    },
+  ];
+  data: AOA = [
+    [1, 2],
+    [3, 4],
+  ];
 
   characters$: Observable<any[]>;
   willDownload = false;
-
-  constructor(private googleSheetsDbService: GoogleSheetsDbService, public http: HttpClient) { }
+  form: FormGroup; 
+  constructor(
+    private googleSheetsDbService: GoogleSheetsDbService,
+    public http: HttpClient,
+    private fb: FormBuilder
+  ) {}
 
   ngOnInit(): void {
-// this.fetchDataFromAssets('assets/voltality/CMVOLT_09092021.CSV');
-
+    this.form = this.fb.group({
+      numVal1:  '',
+      numVal2: '',
+    });
+    // this.fetchDataFromAssets('assets/voltality/CMVOLT_09092021.CSV');
   }
 
   googleSheetUsage() {
@@ -58,12 +73,12 @@ export class BasicComponent implements OnInit {
         street: 'Street',
         streetNumber: 'Street Number',
         zip: 'ZIP',
-        city: 'City'
+        city: 'City',
       },
       skills: {
         _prefix: 'Skill',
-        _listField: true
-      }
+        _listField: true,
+      },
     };
 
     // not use this publish url
@@ -71,14 +86,17 @@ export class BasicComponent implements OnInit {
 
     // use th edit URL
     // https://docs.google.com/spreadsheets/d/16j0t7K1EwBRTHERly4Ggp-ZVAgwlXYCnJDAYFGJ1vHk/edit
-    this.characters$ = this.googleSheetsDbService.get('16j0t7K1EwBRTHERly4Ggp-ZVAgwlXYCnJDAYFGJ1vHk', 1, characterAttributesMapping);
+    this.characters$ = this.googleSheetsDbService.get(
+      '16j0t7K1EwBRTHERly4Ggp-ZVAgwlXYCnJDAYFGJ1vHk',
+      1,
+      characterAttributesMapping
+    );
 
     // this.characters$ = this.googleSheetsDbService.getActive(
     //   '1gSc_7WCmt-HuSLX01-Ev58VsiFuhbpYVo8krbPCvvqA', 1, characterAttributesMapping, 'Active');
 
     this.characters$.subscribe((res) => {
-      console.log(res, 'data');
-
+      console.log(res, 'ress');
     });
   }
 
@@ -86,25 +104,25 @@ export class BasicComponent implements OnInit {
     const sheetId = '15Kndr-OcyCUAkBUcq6X3BMqKa_y2fMAXfPFLiSACiys';
     const url = `https://spreadsheets.google.com/feeds/list/${sheetId}/od6/public/values?alt=json`;
 
-    return this.http.get(url)
-      .pipe(map((res: any) => {
-          const data = res.feed.entry;
+    return this.http.get(url).pipe(
+      map((res: any) => {
+        const datav = res.feed.entry;
 
-          const returnArray: Array<any> = [];
-          if (data && data.length > 0) {
-            data.forEach(entry => {
-              const obj = {};
-              for (const x in entry) {
-                if (x.includes('gsx$') && entry[x].$t) {
-                  obj[x.split('$')[1]] = entry[x]['$t'];
-                }
+        const returnArray: Array<any> = [];
+        if (datav && datav.length > 0) {
+          datav.forEach((entry) => {
+            const obj = {};
+            for (const x in entry) {
+              if (x.includes('gsx$') && entry[x].$t) {
+                obj[x.split('$')[1]] = entry[x]['$t'];
               }
-              returnArray.push(obj);
-            });
-          }
-          return returnArray;
-        })
-      );
+            }
+            returnArray.push(obj);
+          });
+        }
+        return returnArray;
+      })
+    );
   }
 
   // generate workbook and add the worksheet
@@ -121,7 +139,7 @@ export class BasicComponent implements OnInit {
     // ['A1=\'S', 'F1=\'J', 'D2=4', 'B3=3', 'G3=8']
     // new empty workbook
     const wb: XLSX.WorkBook = XLSX.utils.book_new(); // create a new blank book
-    // to add data and sheet
+    // to add dataa and sheet
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1'); // add the worksheet to the book
     // Another way to generate excel
     // var wb = XLSX.utils.table_to_book(document.getElementById('tbl')); // worksheet or workbook
@@ -142,16 +160,15 @@ export class BasicComponent implements OnInit {
     const wbout: string = XLSX.write(wb, wopts); // attempts to write the workbook  wb, write_opts- { bookType: 'xlsx', type: 'binary' } // type- array, 'binary'
     //    the saveAs call downloads a file on the local machine
     saveAs(new Blob([this.s2ab(wbout)]), 'test.xlsx'); //  saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), "test.xlsx");
-
   }
 
-
-
-  // To preview the excel data
-  onFileChange(evt: any) {
+  // To preview the excel dataa
+  onFileUpload(evt: any) {
     /* wire up file reader */
-    const target: DataTransfer =  (evt.target) as DataTransfer;
-    if (target.files.length !== 1) { throw new Error('Cannot use multiple files'); }
+    const target: DataTransfer = evt.target as DataTransfer;
+    if (target.files.length !== 1) {
+      throw new Error('Cannot use multiple files');
+    }
     const reader: FileReader = new FileReader();
     reader.onload = (e: any) => {
       /* read workbook */
@@ -163,21 +180,21 @@ export class BasicComponent implements OnInit {
       //   var address_of_cell = 'A1';
       //   var desired_cell = ws[address_of_cell];
       //   var desired_value = desired_cell.v;
-      /* save data */
-      this.data = ( (XLSX.utils.sheet_to_json(ws, { header: 1 })) as AOA);
+      /* save dataa */
+      this.data = XLSX.utils.sheet_to_json(ws, { header: 1 }) as AOA;
       console.log(this.data);
     };
     reader.readAsBinaryString(target.files[0]);
   }
 
-  onFileChange2(ev) {
+  onFileChange(ev) {
     let workBook = null;
     let jsonData = null;
     const reader = new FileReader();
     const file = ev.target.files[0];
     reader.onload = (event) => {
-      const data = reader.result;
-      workBook = XLSX.read(data, { type: 'binary' });
+      const dataResult = reader.result;
+      workBook = XLSX.read(dataResult, { type: 'binary' });
       jsonData = workBook.SheetNames.reduce((initial, name) => {
         const sheet = workBook.Sheets[name];
         initial[name] = XLSX.utils.sheet_to_json(sheet);
@@ -186,35 +203,45 @@ export class BasicComponent implements OnInit {
       const dataString = JSON.stringify(jsonData);
       console.log(dataString, jsonData, jsonData.Sheet1, 'jsonData');
 
-      // document.getElementById('output').innerHTML = dataString.slice(0, 300).concat('...');
-      // this.setDownload(dataString);
+      document.getElementById('output').innerHTML = dataString
+        .slice(0, 300)
+        .concat('...');
+      this.setDownload(dataString);
     };
     reader.readAsBinaryString(file);
   }
 
-
-
-
-  setDownload(data) {
+  setDownload(dataValue) {
     this.willDownload = true;
     setTimeout(() => {
       const el = document.querySelector('#download');
-      el.setAttribute('href', `data:text/json;charset=utf-8,${encodeURIComponent(data)}`);
+      el.setAttribute(
+        'href',
+        `data:text/json;charset=utf-8,${encodeURIComponent(dataValue)}`
+      );
       el.setAttribute('download', 'xlsxtojson.json');
     }, 1000);
   }
 
-
   public exportAsExcelFile(): void {
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.data2); // generate worksheet
-    const workbook: XLSX.WorkBook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const workbook: XLSX.WorkBook = {
+      Sheets: { data: worksheet },
+      SheetNames: ['data'],
+    };
+    const excelBuffer: any = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
     // type can be buffer also. If we are using xlsx-style for styling then we can also replace
     // XLSX with XLSXStyle.
-    const data: Blob = new Blob([excelBuffer], {
-      type: ''
+    const dataSheet: Blob = new Blob([excelBuffer], {
+      type: '',
     });
-    FileSaver.saveAs(data, 'excelFileName' + '_export_' + new Date().getTime() + '.xlsx');
+    FileSaver.saveAs(
+      dataSheet,
+      'excelFileName' + '_export_' + new Date().getTime() + '.xlsx'
+    );
   }
 
   generateExcelsheet() {
@@ -222,13 +249,12 @@ export class BasicComponent implements OnInit {
     const wb: WorkBook = { SheetNames: [], Sheets: {} };
     const ws: any = utils.json_to_sheet(this.data2, {
       header: ['First', 'Second', 'A'],
-      skipHeader: true
+      skipHeader: true,
     });
     // Add the sheet name to the list
     wb.SheetNames.push(ws_name);
     wb.Sheets[ws_name] = ws;
     const wbout = write(wb, { bookType: 'xls', bookSST: true, type: 'binary' });
-
 
     saveAs(
       new Blob([this.s2ab(wbout)], { type: 'application/octet-stream' }),
@@ -245,22 +271,21 @@ export class BasicComponent implements OnInit {
     return buf;
   }
 
-  // To get excel data from assets you can use below approach-
+  // To get excel dataa from assets you can use below approach-
   fetchDataFromAssets(sheetUrl) {
     // const testUrl = '../assets/demo.xlsx';
     // const testUrl = "/assets/cm01JUL2021bhav.csv";
 
-
     const oReq = new XMLHttpRequest();
     oReq.open('GET', sheetUrl, true);
     oReq.responseType = 'arraybuffer';
-    oReq.onload = function(e) {
+    oReq.onload = function (e) {
       const arraybuffer = oReq.response;
-      /* convert data to binary string */
-      const data = new Uint8Array(arraybuffer);
+      /* convert dataa to binary string */
+      const dataBuffer = new Uint8Array(arraybuffer);
       const arr = new Array();
-      for (let i = 0; i != data.length; ++i) {
-        arr[i] = String.fromCharCode(data[i]);
+      for (let i = 0; i != dataBuffer.length; ++i) {
+        arr[i] = String.fromCharCode(dataBuffer[i]);
       }
       const bstr = arr.join('');
       //        Call XLSX
@@ -274,7 +299,7 @@ export class BasicComponent implements OnInit {
         { header: 1, raw: true }
       );
       const jsonOut = JSON.stringify(json);
-      console.log('test', jsonOut);
+      console.log('test', jsonOut, json);
     };
     oReq.send();
   }
@@ -293,8 +318,6 @@ export class BasicComponent implements OnInit {
   //   worksheet['C1'] = { t:'n', f: "SUM(A1:A3*B1:B3)", F:"C1:C1" };  //setting formula
   //  }
   //   createWorksheet(wb) {
-
-
 
   //      var i = 0;
   //             for(i = 0; i !== this.data.length; ++i) console.log(this.data[i]);
@@ -325,4 +348,101 @@ export class BasicComponent implements OnInit {
   //      "numFmt": "m/d/yy"
   //   "numFmt": "m/d/yy h:mm:ss AM/PM"
 
+  addfile(event) {
+    this.file = event.target.files[0];
+    let fileReader = new FileReader();
+    fileReader.readAsArrayBuffer(this.file);
+    fileReader.onload = (e) => {
+      this.arrayBuffer = fileReader.result;
+      var data = new Uint8Array(this.arrayBuffer);
+      var arr = new Array();
+      for (var i = 0; i != data.length; ++i)
+        arr[i] = String.fromCharCode(data[i]);
+      var bstr = arr.join('');
+      var workbook = XLSX.read(bstr, { type: 'binary' });
+      var first_sheet_name = workbook.SheetNames[0];
+      var worksheet = workbook.Sheets[first_sheet_name];
+      const val = XLSX.utils.sheet_to_json(worksheet, { raw: true });
+      var arraylist = XLSX.utils.sheet_to_json(worksheet, { raw: true });
+      console.log(val, 'val');
+
+      this.getMaxElem(val, 'VOLUME', 'call');
+      const callVolume = this.getFinalSum(val, 'VOLUME', 'call');
+      const highOicall = this.getMaxElem(val, 'OI', 'call');
+      this.getMaxElem(val, 'CHNG IN OI', 'call');
+
+      this.getMaxElem(val, 'VOLUME_1', 'put');
+      const highOiput = this.getMaxElem(val, 'OI_1', 'put');
+      this.getMaxElem(val, 'CHNG IN OI_1', 'put');
+      const putVolume = this.getFinalSum(val, 'VOLUME_1', 'put');
+
+      const f = this.finalData(callVolume, putVolume);
+      const f2 = this.safeStrike(highOicall, highOiput);
+    };
+  }
+
+  checkNumber(val) {
+    return isNaN(val) ? 0 : val;
+  }
+
+  getMaxElem(arr, key, type) {
+    arr.sort((a, b) =>
+      this.checkNumber(a[key]) < this.checkNumber(b[key])
+        ? 1
+        : this.checkNumber(a[key]) > this.checkNumber(b[key])
+        ? -1
+        : 0
+    );
+    let aerf = type == 'put' ? arr[0]['LTP_1'] : arr[0]['LTP'];
+    let aerf2 = type == 'put' ? arr[1]['LTP_1'] : arr[1]['LTP'];
+
+    let aerf3 = type == 'put' ? arr[2]['LTP_1'] : arr[2]['LTP'];
+
+    let aerf4 = type == 'put' ? arr[0]['OI_1'] : arr[0]['OI'];
+    let aerf5 = type == 'put' ? arr[1]['OI_1'] : arr[1]['OI'];
+
+    let aerf6 = type == 'put' ? arr[2]['OI_1'] : arr[2]['OI'];
+
+    console.log(
+      `${key} STRIKE', ${arr[0]['STRIKE PRICE']} first highest ${type} LTP ${aerf} data ${aerf4}`
+    );
+    console.log(
+      `${key} STRIKE', ${arr[1]['STRIKE PRICE']} second highest ${type} LTP ${aerf2} data ${aerf5}`
+    );
+    console.log(
+      `${key} STRIKE', ${arr[2]['STRIKE PRICE']} third highest ${type} LTP ${aerf3} data ${aerf6}`
+    );
+
+    // console.log(arr.slice(0, 3));
+    return arr[0]['STRIKE PRICE'];
+  }
+
+  getFinalSum(arr, key, type) {
+    const result = arr.reduce(
+      (sum, cur) => sum + this.checkNumber(cur[key]),
+      0
+    );
+    console.log(`${result} total ${key} ${type}`);
+    return result;
+  }
+
+  finalData(call, put) {
+    let ratio = (parseInt(put) / parseInt(call)).toFixed(2);
+    console.log(ratio, 'PCR');
+  }
+
+  safeStrike(highcall, highputoi) {
+    const safe = (highcall + highputoi) / 2;
+    console.log(safe, 'safe');
+  }
+
+  priceChangePercent(numVal1, numVal2) {
+    var totalValue = ((numVal2 - numVal1) / numVal1) * 100;
+
+    console.log(totalValue);
+  }
+
+  submit(nums) {
+    this.priceChangePercent(nums.numVal1, nums.numVal2);
+  }
 }
