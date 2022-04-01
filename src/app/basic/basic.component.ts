@@ -437,7 +437,7 @@ export class BasicComponent implements OnInit {
   }
 
   priceChangePercent(numVal1, numVal2) {
-    var totalValue = ((numVal2 - numVal1) / numVal1) * 100;
+    var totalValue = (((numVal2 - numVal1) / numVal1) * 100).toFixed(2);
 
     console.log(totalValue);
   }
