@@ -16,8 +16,7 @@ type AOA = Array<Array<any>>; // type AOA = any[][];
   styleUrls: ['./basic.component.scss'],
 })
 export class BasicComponent implements OnInit {
-  file;
-  arrayBuffer;
+
   ws_data = [
     ['S', 'h', 'e', 'e', 't', 'J', 'S'],
     [1, 2, 3, 4, 5],
@@ -46,18 +45,15 @@ export class BasicComponent implements OnInit {
 
   characters$: Observable<any[]>;
   willDownload = false;
-  form: FormGroup; 
+
   constructor(
     private googleSheetsDbService: GoogleSheetsDbService,
     public http: HttpClient,
-    private fb: FormBuilder
+
   ) {}
 
   ngOnInit(): void {
-    this.form = this.fb.group({
-      numVal1:  '',
-      numVal2: '',
-    });
+
     // this.fetchDataFromAssets('assets/voltality/CMVOLT_09092021.CSV');
   }
 
@@ -348,101 +344,7 @@ export class BasicComponent implements OnInit {
   //      "numFmt": "m/d/yy"
   //   "numFmt": "m/d/yy h:mm:ss AM/PM"
 
-  addfile(event) {
-    this.file = event.target.files[0];
-    let fileReader = new FileReader();
-    fileReader.readAsArrayBuffer(this.file);
-    fileReader.onload = (e) => {
-      this.arrayBuffer = fileReader.result;
-      var data = new Uint8Array(this.arrayBuffer);
-      var arr = new Array();
-      for (var i = 0; i != data.length; ++i)
-        arr[i] = String.fromCharCode(data[i]);
-      var bstr = arr.join('');
-      var workbook = XLSX.read(bstr, { type: 'binary' });
-      var first_sheet_name = workbook.SheetNames[0];
-      var worksheet = workbook.Sheets[first_sheet_name];
-      const val = XLSX.utils.sheet_to_json(worksheet, { raw: true });
-      var arraylist = XLSX.utils.sheet_to_json(worksheet, { raw: true });
-      console.log(val, 'val');
 
-      this.getMaxElem(val, 'VOLUME', 'call');
-      const callVolume = this.getFinalSum(val, 'VOLUME', 'call');
-      const highOicall = this.getMaxElem(val, 'OI', 'call');
-      this.getMaxElem(val, 'CHNG IN OI', 'call');
 
-      this.getMaxElem(val, 'VOLUME_1', 'put');
-      const highOiput = this.getMaxElem(val, 'OI_1', 'put');
-      this.getMaxElem(val, 'CHNG IN OI_1', 'put');
-      const putVolume = this.getFinalSum(val, 'VOLUME_1', 'put');
 
-      const f = this.finalData(callVolume, putVolume);
-      const f2 = this.safeStrike(highOicall, highOiput);
-    };
-  }
-
-  checkNumber(val) {
-    return isNaN(val) ? 0 : val;
-  }
-
-  getMaxElem(arr, key, type) {
-    arr.sort((a, b) =>
-      this.checkNumber(a[key]) < this.checkNumber(b[key])
-        ? 1
-        : this.checkNumber(a[key]) > this.checkNumber(b[key])
-        ? -1
-        : 0
-    );
-    let aerf = type == 'put' ? arr[0]['LTP_1'] : arr[0]['LTP'];
-    let aerf2 = type == 'put' ? arr[1]['LTP_1'] : arr[1]['LTP'];
-
-    let aerf3 = type == 'put' ? arr[2]['LTP_1'] : arr[2]['LTP'];
-
-    let aerf4 = type == 'put' ? arr[0]['OI_1'] : arr[0]['OI'];
-    let aerf5 = type == 'put' ? arr[1]['OI_1'] : arr[1]['OI'];
-
-    let aerf6 = type == 'put' ? arr[2]['OI_1'] : arr[2]['OI'];
-
-    console.log(
-      `${key} STRIKE', ${arr[0]['STRIKE PRICE']} first highest ${type} LTP ${aerf} data ${aerf4}`
-    );
-    console.log(
-      `${key} STRIKE', ${arr[1]['STRIKE PRICE']} second highest ${type} LTP ${aerf2} data ${aerf5}`
-    );
-    console.log(
-      `${key} STRIKE', ${arr[2]['STRIKE PRICE']} third highest ${type} LTP ${aerf3} data ${aerf6}`
-    );
-
-    // console.log(arr.slice(0, 3));
-    return arr[0]['STRIKE PRICE'];
-  }
-
-  getFinalSum(arr, key, type) {
-    const result = arr.reduce(
-      (sum, cur) => sum + this.checkNumber(cur[key]),
-      0
-    );
-    console.log(`${result} total ${key} ${type}`);
-    return result;
-  }
-
-  finalData(call, put) {
-    let ratio = (parseInt(put) / parseInt(call)).toFixed(2);
-    console.log(ratio, 'PCR');
-  }
-
-  safeStrike(highcall, highputoi) {
-    const safe = (highcall + highputoi) / 2;
-    console.log(safe, 'safe');
-  }
-
-  priceChangePercent(numVal1, numVal2) {
-    var totalValue = (((numVal2 - numVal1) / numVal1) * 100).toFixed(2);
-
-    console.log(totalValue);
-  }
-
-  submit(nums) {
-    this.priceChangePercent(nums.numVal1, nums.numVal2);
-  }
 }

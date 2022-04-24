@@ -46,30 +46,7 @@
 <hr>
 <button (click)="fetchDataFromAssets('assets/voltality/CMVOLT_09092021.CSV')">fetchDataFromAssets!</button>
 <hr>
-<div class="col-md-8 form-group">        
-  <input type="file" class="form-control" (change)="addfile($event)" placeholder="Upload file" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">        
-</div> 
-<hr>
-
-<form [formGroup]="form" (ngSubmit)="submit(form.value)">
-  
-  <div>
-    <label>numVal1</label>
-    <input type="number" formControlName="numVal1" placeholder="numVal1">
-  </div>
-
-  <div>
-    <label>numVal2</label>
-    <input type="number" formControlName="numVal2" placeholder="numVal2">
-  </div>
 
 
-
-
-
-
-
-  <button type="submit">submit</button>
-</form>
 
 
