@@ -8,12 +8,14 @@ import { ExceljsComponent } from './exceljs/exceljs.component';
 import { GoogleSheetsDbService } from 'ng-google-sheets-db';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ExcelDocumentResponseComponent } from './excel-document-response/excel-document-response.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     BasicComponent,
-    ExceljsComponent
+    ExceljsComponent,
+    ExcelDocumentResponseComponent
   ],
   imports: [
     BrowserModule,

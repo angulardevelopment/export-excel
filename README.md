@@ -20,7 +20,8 @@ I'm Sam, and I'm passionate about product engineering and web development. I cre
 
 
 ### About the app
-Export to Excel 
+Export json data to Excel
+Excel file in Angular as an API response
 
 ### useful commands to run project
 - npm run start
