@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router, Routes } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,15 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'export-excel';
+
+  routes: Routes = [];
+
+  constructor(private router: Router) {}
+
+  ngAfterViewInit(): void {
+    // Fetch the routes from the router
+    this.routes = this.router.config;
+    console.log(this.routes);
+  }
+
 }
